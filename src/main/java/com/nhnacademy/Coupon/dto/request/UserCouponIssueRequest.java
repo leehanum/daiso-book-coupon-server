@@ -1,0 +1,18 @@
+package com.nhnacademy.Coupon.dto.request;
+
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+public class UserCouponIssueRequest {
+
+    @NotNull(message = "사용자 ID는 필수입니다.")
+    private Long userId;
+
+    @NotNull(message = "쿠폰 ID는 필수입니다.")
+    private Long couponId;
+}

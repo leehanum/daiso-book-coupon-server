@@ -1,12 +1,17 @@
 package com.nhnacademy.Coupon.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Coupons")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 public class Coupon {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,6 +21,7 @@ public class Coupon {
     @Column(name = "coupon_name", nullable = false)
     private String couponName;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "discount_way")
     private DiscountWay discountWay;
 
@@ -25,11 +31,14 @@ public class Coupon {
     @Column(name = "category_id")
     private Long categoryId;
 
-    @Column(name = "target_book") // 도서 아이디
-    private Long targetBook;
+    @Column(name = "target_book_id") // 도서 아이디
+    private Long targetBookId;
 
-    @Column(name = "is_birthday") // 생일 여부
+    @Column(name = "is_birthday", nullable = false) // 생일 쿠폰 여부
     private boolean isBirthday;
+
+    @Column(name = "is_welcome", nullable = false) // 왤컴 쿠폰 여부
+    private boolean isWelcome = false;
 
     @Column(name = "min_order_amount") // 최소 주문 금액
     private Long minOrderAmount;
@@ -40,7 +49,7 @@ public class Coupon {
     @Column(name = "availability_days") // 사용 기간
     private Integer availabilityDays;
 
-    @Column(name = "created_at", updatable = false, nullable = false) // 쿠폰 생성일
+    @Builder.Default
+    @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
-
 }
