@@ -2,6 +2,7 @@ package com.nhnacademy.Coupon.dto.response;
 
 import com.nhnacademy.Coupon.entity.CouponStatus;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class UserCouponResponse {
     private Long userCouponId;
     private Long userId;

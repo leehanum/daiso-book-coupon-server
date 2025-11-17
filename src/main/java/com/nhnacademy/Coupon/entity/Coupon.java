@@ -46,7 +46,7 @@ public class Coupon {
     @Column(name = "max_discount_amount") // 최대 할인 금액
     private Long maxDiscountAmount;
 
-    @Column(name = "availability_days") // 사용 기간
+    @Column(name = "availability_days") // 사용 가능한 기간
     private Integer availabilityDays;
 
     @Builder.Default

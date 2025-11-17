@@ -1,5 +1,5 @@
 package com.nhnacademy.Coupon.entity;
 
 public enum DiscountWay {
-    AMOUNT,RATIO // 할인가격,할인비율
+    FIXED_AMOUNT,RATIO // 고정 할인가격, 할인비율
 }
