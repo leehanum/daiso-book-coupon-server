@@ -1,11 +1,13 @@
-package com.nhnacademy.Coupon.dto.response;
+package com.nhnacademy.coupon.dto.response;
 
-import com.nhnacademy.Coupon.entity.DiscountWay;
+import com.nhnacademy.coupon.entity.DiscountWay;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Schema(description = "쿠폰 응답")
 @Builder
 public record CouponResponse (
         Long couponId,

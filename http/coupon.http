@@ -1,0 +1,16 @@
+### 쿠폰 create(post) 요청
+POST http://localhost:8080/api/coupons
+Content-Type: application/json
+
+{
+     "couponName": "생일 축하 쿠폰",
+     "discountWay": "FIXED_AMOUNT",
+     "discount": 10000,
+     "categoryId": null,
+     "targetBookId": null,
+     "isBirthday": true,
+     "isWelcome": false,
+     "minOrderAmount": 50000,
+     "maxDiscountAmount": null,
+     "availabilityDays": 30
+  }

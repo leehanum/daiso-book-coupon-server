@@ -1,4 +1,4 @@
-package com.nhnacademy.Coupon.entity;
+package com.nhnacademy.coupon.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

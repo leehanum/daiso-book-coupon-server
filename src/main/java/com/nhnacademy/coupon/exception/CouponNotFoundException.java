@@ -1,4 +1,4 @@
-package com.nhnacademy.Coupon.exception;
+package com.nhnacademy.coupon.exception;
 
 // 런타임에 발생하는 언체크 예외로 정의
 public class CouponNotFoundException extends RuntimeException {

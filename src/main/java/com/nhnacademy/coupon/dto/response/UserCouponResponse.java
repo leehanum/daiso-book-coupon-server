@@ -1,6 +1,7 @@
-package com.nhnacademy.Coupon.dto.response;
+package com.nhnacademy.coupon.dto.response;
 
-import com.nhnacademy.Coupon.entity.CouponStatus;
+import com.nhnacademy.coupon.entity.CouponStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Schema(description = "사용자 쿠폰 응답")
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor

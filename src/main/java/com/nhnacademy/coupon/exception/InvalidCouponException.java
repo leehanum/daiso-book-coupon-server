@@ -1,4 +1,4 @@
-package com.nhnacademy.Coupon.exception;
+package com.nhnacademy.coupon.exception;
 
 public class InvalidCouponException extends RuntimeException {
 

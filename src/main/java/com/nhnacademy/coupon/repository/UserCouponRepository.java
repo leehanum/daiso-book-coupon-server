@@ -1,7 +1,7 @@
-package com.nhnacademy.Coupon.repository;
+package com.nhnacademy.coupon.repository;
 
-import com.nhnacademy.Coupon.entity.CouponStatus;
-import com.nhnacademy.Coupon.entity.UserCoupon;
+import com.nhnacademy.coupon.entity.CouponStatus;
+import com.nhnacademy.coupon.entity.UserCoupon;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

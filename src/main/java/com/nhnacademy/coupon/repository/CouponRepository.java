@@ -1,6 +1,6 @@
-package com.nhnacademy.Coupon.repository;
+package com.nhnacademy.coupon.repository;
 
-import com.nhnacademy.Coupon.entity.Coupon;
+import com.nhnacademy.coupon.entity.Coupon;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

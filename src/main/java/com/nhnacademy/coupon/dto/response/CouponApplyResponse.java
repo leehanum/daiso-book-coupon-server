@@ -1,8 +1,10 @@
-package com.nhnacademy.Coupon.dto.response;
+package com.nhnacademy.coupon.dto.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import java.math.BigDecimal;
 
+@Schema(description = "쿠폰 적용 응답")
 @Builder
 public record CouponApplyResponse(
         Long userCouponId,

@@ -1,14 +1,19 @@
-package com.nhnacademy.Coupon.dto.request;
+package com.nhnacademy.coupon.dto.request;
 
-import com.nhnacademy.Coupon.entity.DiscountWay;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.nhnacademy.coupon.entity.DiscountWay;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
+@Schema(description = "쿠폰 생성 요청")
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class CouponCreateRequest {
@@ -27,9 +32,9 @@ public class CouponCreateRequest {
     private Long categoryId;
 
     private Long targetBookId;
-
+    @JsonProperty("isBirthday")
     private boolean isBirthday = false;
-
+    @JsonProperty("isWelcome")
     private boolean isWelcome = false;
 
     @Min(value = 0, message = "최소 주문 금액은 0 이상이어야 합니다.")
