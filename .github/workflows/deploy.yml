@@ -43,7 +43,8 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          # ★ 이미지 이름을 'shop'으로 변경
+          # ★ 이미지 이름을 '
+          shop'으로 변경
           tags: ${{ secrets.DOCKER_USERNAME }}/coupon:latest
 
       # 6. 서버 배포
@@ -63,14 +64,14 @@ jobs:
             # 네트워크 보장
             docker network create my-network || true
             
-            # 기존 컨테이너 정리 (이름: shop)
-            if [ "$(docker ps -aq -f name=shop)" ]; then
+            # 기존 컨테이너 정리 (이름: coupon)
+            if [ "$(docker ps -aq -f name=coupon)" ]; then
                 echo "🧹 기존 Shop 컨테이너 삭제..."
-                docker rm -f shop
+                docker rm -f coupon
             fi
             
             # 이미지 Pull
-            docker pull ${{ secrets.DOCKER_USERNAME }}/shop:latest
+            docker pull ${{ secrets.DOCKER_USERNAME }}/coupon:latest
             
             # ★ Shop 실행
             # - 포트: 없음 (외부 노출 X, Gateway 통해서만 접근)
@@ -82,8 +83,8 @@ jobs:
               --network my-network \
               --restart unless-stopped \
               -e EUREKA_CLIENT_SERVICEURL_DEFAULTZONE="http://eureka:8761/eureka/" \
-              ${{ secrets.DOCKER_USERNAME }}/shop:latest
+              ${{ secrets.DOCKER_USERNAME }}/coupon:latest
             
             # 실행 확인
             sleep 5
-            docker logs --tail 20 shop
+            docker logs --tail 20 coupon
