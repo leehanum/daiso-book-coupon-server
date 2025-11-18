@@ -43,8 +43,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          # ★ 이미지 이름을 '
-          shop'으로 변경
+          # ★ 이미지 이름을 coupon으로 변경
           tags: ${{ secrets.DOCKER_USERNAME }}/coupon:latest
 
       # 6. 서버 배포
