@@ -61,7 +61,7 @@ jobs:
             echo "🔄 Coupon 배포 시작..."
             
             # 네트워크 보장
-            docker network create my-network || true
+            docker network create team3-network || true
             
             # 기존 컨테이너 정리 (이름: coupon)
             if [ "$(docker ps -aq -f name=coupon)" ]; then
@@ -75,11 +75,11 @@ jobs:
             # ★ Coupon 실행
             # - 포트: 없음 (외부 노출 X, Gateway 통해서만 접근)
             # - 이름: coupon
-            # - 네트워크: my-network
+            # - 네트워크: team3-network
             echo "🚀 Coupon 실행 중..."
             docker run -d \
               --name coupon \
-              --network my-network \
+              --network team3-network \
               --restart unless-stopped \
               -e EUREKA_CLIENT_SERVICEURL_DEFAULTZONE="http://eureka:8761/eureka/" \
               ${{ secrets.DOCKER_USERNAME }}/coupon:latest
