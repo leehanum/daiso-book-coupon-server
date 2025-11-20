@@ -17,7 +17,7 @@ public interface CouponService {
     CouponResponse createCoupon(CouponCreateRequest request);
 
     // 사용자에게 쿠폰 발급
-    UserCouponResponse issueCoupon(UserCouponIssueRequest request);
+    UserCouponResponse issueCoupon(Long userId, UserCouponIssueRequest request);
 
     // Welcome 쿠폰 발급
     void issueWelcomCoupon(Long userId);

@@ -1,4 +1,4 @@
-package com.nhnacademy.coupon.controller;
+package com.nhnacademy.coupon.controller.api;
 
 import com.nhnacademy.coupon.dto.request.CouponCreateRequest;
 import com.nhnacademy.coupon.dto.response.CouponResponse;
@@ -8,14 +8,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Coupon Policy", description = "쿠폰 정책 관리 (관리자용)")
 @RestController
-@RequestMapping("api/coupons")
+@RequestMapping("/api/coupons")
 public class CouponPolicyController {
 
     private final CouponServiceImpl couponServiceImpl;
@@ -26,7 +23,10 @@ public class CouponPolicyController {
 
     @Operation(summary = "쿠폰 정책 생성", description = "새로운 쿠폰 정책을 생성합니다.")
     @PostMapping
-    public ResponseEntity<CouponResponse> createCoupon(@Valid @RequestBody CouponCreateRequest request) {
+    public ResponseEntity<CouponResponse> createCoupon(
+            @RequestHeader(value = "X-Gateway-Pass", required = false) String gatewayPass,
+            @Valid @RequestBody CouponCreateRequest request) {
+        System.out.println(gatewayPass);
         CouponResponse response = couponServiceImpl.createCoupon(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

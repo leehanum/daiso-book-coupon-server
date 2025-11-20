@@ -56,19 +56,22 @@ public class CouponServiceImpl implements CouponService {
         return convertToResponse(saved);
     }
     // 사용자에게 쿠폰 발급
+    @Override
     @Transactional
-    public UserCouponResponse issueCoupon(UserCouponIssueRequest request){
+    public UserCouponResponse issueCoupon(Long userId, UserCouponIssueRequest request){
+        // 1. 쿠폰 정책 조회
         Coupon coupon = couponRepository.findById(request.getCouponId())
                 .orElseThrow(() -> new CouponNotFoundException("쿠폰을 찾을 수 없습니다."));
-
+        // 2. 만료일 계산
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expiryAt = now.plusDays(coupon.getAvailabilityDays());
-
+        // 3. 사용자 쿠폰 생성(여기서 매겨변수 userId를 사용)
         UserCoupon userCoupon = UserCoupon.builder()
-                .userId(request.getUserId())
+                .userId(userId)
                 .coupon(coupon)
                 .status(CouponStatus.ISSUED)
-                .expiryAt(expiryAt)
+                .issuedAt(now) // 발급일시
+                .expiryAt(expiryAt) // 만료일시
                 .build();
 
         UserCoupon saved = userCouponRepository.save(userCoupon);
@@ -76,6 +79,7 @@ public class CouponServiceImpl implements CouponService {
 
     }
     // Welcome 쿠폰 발급
+    @Override
     @Transactional
     public void issueWelcomCoupon(Long userId){
         List<Coupon> welcomeCoupons = couponRepository.findByIsWelcomeTrue();
@@ -87,11 +91,10 @@ public class CouponServiceImpl implements CouponService {
         // Welcome 쿠폰 발급 (정책: 50,000 이상 구매 시 10.000 할인, 30일)
         for (Coupon coupon : welcomeCoupons) {
             try{
-                UserCouponIssueRequest request = new UserCouponIssueRequest();
-                request.setUserId(userId);
-                request.setCouponId(coupon.getCouponId());
+                UserCouponIssueRequest request = new UserCouponIssueRequest(coupon.getCouponId());
 
-                issueCoupon(request);
+                issueCoupon(userId,request);
+
                 log.info("Welcome 쿠폰 발급 성공: userId={}, couponId={}", userId, coupon.getCouponId());
             } catch (Exception e){
                 // 쿠폰 발급 실패해도 회원가입은 정상 처리
