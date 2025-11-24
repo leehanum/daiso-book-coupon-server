@@ -21,5 +21,5 @@ public class BookCoupon {
 
     @ManyToOne
     @JoinColumn(name = "coupon_policy_id")
-    private CouponPolicy couponPolicyId;
+    private CouponPolicy couponPolicy;
 }
