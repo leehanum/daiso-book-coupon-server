@@ -10,6 +10,6 @@ public class CouponIssueTestController {
 
     @GetMapping
     public String test(){
-        return "test";
+        return "couponPolicyCreate";
     }
 }

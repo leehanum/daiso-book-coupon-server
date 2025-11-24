@@ -1,24 +1,25 @@
 package com.nhnacademy.coupon.entity;
 
+
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "book_coupons")
+@Table(name = "Book_coupon")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BookCoupon {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "book_coupon_id")
     private Long bookCouponId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "coupon_id", nullable = false)
-    private Coupon coupon;
-
     @Column(name = "book_id")
     private Long bookId;
+
+    @ManyToOne
+    @JoinColumn(name = "coupon_policy_id")
+    private CouponPolicy couponPolicyId;
 }

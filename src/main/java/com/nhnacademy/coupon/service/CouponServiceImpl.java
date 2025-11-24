@@ -5,7 +5,6 @@ import com.nhnacademy.coupon.dto.request.UserCouponIssueRequest;
 import com.nhnacademy.coupon.dto.response.CouponApplyResponse;
 import com.nhnacademy.coupon.dto.response.CouponResponse;
 import com.nhnacademy.coupon.dto.response.UserCouponResponse;
-import com.nhnacademy.coupon.entity.Coupon;
 import com.nhnacademy.coupon.entity.CouponStatus;
 import com.nhnacademy.coupon.entity.DiscountWay;
 import com.nhnacademy.coupon.entity.UserCoupon;

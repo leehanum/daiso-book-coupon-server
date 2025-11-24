@@ -1,6 +1,5 @@
 package com.nhnacademy.coupon.repository;
 
-import com.nhnacademy.coupon.entity.Coupon;
 import com.nhnacademy.coupon.entity.DiscountWay;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
