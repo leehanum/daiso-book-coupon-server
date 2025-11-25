@@ -1,14 +1,7 @@
 server:
   port: 8080
-  servlet:
-    session:
-      cookie:
-        http-only: true
-        secure: true
 
 spring:
-  profiles:
-    active: dev
   application:
     name: team3-coupon
   datasource:
