@@ -19,7 +19,7 @@ import java.util.List;
 
 @Tag(name = "User Coupon", description = "사용자 쿠폰 관리 (발급 및 사용)")
 @RestController
-@RequestMapping("/api/user-coupons")
+@RequestMapping("/api/coupons")
 public class UserCouponController {
 
     private final CouponService couponService;
