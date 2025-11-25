@@ -1,6 +1,6 @@
 spring:
   application:
-    name: coupon
+    name: team3-coupon
 
   # === [기존 H2 설정 주석 보존] ===
   #  h2:
@@ -51,8 +51,8 @@ eureka:
     fetch-registry: true # 유레카 서버의 정보를 가져올지 여부
     service-url:
       # 유레카 client와 server를 연결하는 url 주소
-      #      defaultZone: http://eureka:8761/eureka/
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://eureka:8761/eureka/
+#      defaultZone: http://localhost:8761/eureka/
 
 jwt:
   secret: "v3s5v8y/B?E(H+MbQeThWmZq4t7w9z$C&F)J@NcRfUjXn2r5u8x/A?D(G+KaPdSg"
