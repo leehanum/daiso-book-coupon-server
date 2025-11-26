@@ -1,13 +1,15 @@
 package com.nhnacademy.coupon.domain.coupon.controller.api;
 
-import com.nhnacademy.coupon.global.annotation.CurrentUserId;
 import com.nhnacademy.coupon.domain.coupon.dto.request.UserCouponIssueRequest;
 import com.nhnacademy.coupon.domain.coupon.dto.response.CouponApplyResponse;
 import com.nhnacademy.coupon.domain.coupon.dto.response.UserCouponResponse;
 import com.nhnacademy.coupon.domain.coupon.service.CouponService;
+import com.nhnacademy.coupon.global.annotation.CurrentUserId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -17,20 +19,31 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.List;
 
+@Slf4j
 @Tag(name = "User Coupon", description = "사용자 쿠폰 관리 (발급 및 사용)")
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/coupons")
 public class UserCouponController {
 
     private final CouponService couponService;
 
-    public UserCouponController(CouponService couponService) {
-        this.couponService = couponService;
+    @GetMapping("test/auth")
+    public String testAuth(@RequestHeader(value = "X-User-Id", required = false) String userId) {
+
+        log.info("========================================");
+        log.info("[Coupon Server] 인증된 User ID: {}", userId);
+        log.info("========================================");
+
+        if (userId == null) {
+            return "실패: 인증 헤더(X-User-Id)가 없습니다!";
+        }
+        return "성공: 당신의 ID는 " + userId + "입니다.";
     }
 
     @Operation(summary = "Welcome 쿠폰 발급", description = "회원가입 완료 시 시스템이 자동으로 호출하는 API입니다.")
     @PostMapping("/welcome/{userId}")
-    public ResponseEntity<Void> issueWelcomeCoupon(@PathVariable Long userId){
+    public ResponseEntity<Void> issueWelcomeCoupon(@PathVariable Long userId) {
         couponService.issueWelcomeCoupon(userId);
         return ResponseEntity.ok().build();
     }
