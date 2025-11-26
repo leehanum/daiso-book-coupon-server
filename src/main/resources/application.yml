@@ -1,6 +1,9 @@
 spring:
+  profiles:
+    active: dev
   application:
     name: team3-coupon
+
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
@@ -31,7 +34,7 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+      defaultZone: http://team3-eureka:8761/eureka/
 
 logging:
   level:

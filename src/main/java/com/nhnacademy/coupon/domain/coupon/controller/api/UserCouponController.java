@@ -26,7 +26,7 @@ import java.util.List;
 @RequestMapping("/api/coupons")
 public class UserCouponController {
 
-    private final CouponService couponService;
+    private final CouponPolicyService couponPolicyService;
 
     @GetMapping("test/auth")
     public String testAuth(@RequestHeader(value = "X-User-Id", required = false) String userId) {
@@ -53,21 +53,21 @@ public class UserCouponController {
     public ResponseEntity<UserCouponResponse> issueCoupon(
             @CurrentUserId Long userId,  // 토큰에서 검증된 진짜 ID
             @Valid @RequestBody UserCouponIssueRequest request) {
-        UserCouponResponse response = couponService.issueCoupon(userId, request);
+        UserCouponResponse response = couponPolicyService.issueCoupon(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Operation(summary = "내 쿠폰 목록 조회")
     @GetMapping("/users/{userId}")
     public ResponseEntity<Page<UserCouponResponse>> getUserCoupons(@PathVariable Long userId, Pageable pageable) {
-        Page<UserCouponResponse> response = couponService.getUserCoupons(userId, pageable);
+        Page<UserCouponResponse> response = couponPolicyService.getUserCoupons(userId, pageable);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "사용 가능한 쿠폰 조회")
     @GetMapping("/users/{userId}/available")
     public ResponseEntity<List<UserCouponResponse>> getAvailableCoupons(@PathVariable Long userId) {
-        List<UserCouponResponse> response = couponService.getAvailableCoupons(userId);
+        List<UserCouponResponse> response = couponPolicyService.getAvailableCoupons(userId);
         return ResponseEntity.ok(response);
     }
 
@@ -77,7 +77,7 @@ public class UserCouponController {
             @PathVariable Long userCouponId,
             @RequestParam BigDecimal price) {
 
-        CouponApplyResponse response = couponService.applyCoupon(userCouponId, price);
+        CouponApplyResponse response = couponPolicyService.applyCoupon(userCouponId, price);
         return ResponseEntity.ok(response);
     }
 }
