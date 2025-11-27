@@ -3,7 +3,7 @@ package com.nhnacademy.coupon.domain.coupon.controller.api;
 import com.nhnacademy.coupon.domain.coupon.dto.request.UserCouponIssueRequest;
 import com.nhnacademy.coupon.domain.coupon.dto.response.CouponApplyResponse;
 import com.nhnacademy.coupon.domain.coupon.dto.response.UserCouponResponse;
-import com.nhnacademy.coupon.domain.coupon.service.CouponService;
+import com.nhnacademy.coupon.domain.coupon.service.CouponPolicyService;
 import com.nhnacademy.coupon.global.annotation.CurrentUserId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -44,7 +44,7 @@ public class UserCouponController {
     @Operation(summary = "Welcome 쿠폰 발급", description = "회원가입 완료 시 시스템이 자동으로 호출하는 API입니다.")
     @PostMapping("/welcome/{userId}")
     public ResponseEntity<Void> issueWelcomeCoupon(@PathVariable Long userId) {
-        couponService.issueWelcomeCoupon(userId);
+        couponPolicyService.issueWelcomeCoupon(userId);
         return ResponseEntity.ok().build();
     }
 
