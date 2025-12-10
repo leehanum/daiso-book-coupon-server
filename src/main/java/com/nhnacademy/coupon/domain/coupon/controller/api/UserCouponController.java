@@ -52,11 +52,9 @@ public class UserCouponController {
 
         log.info("단일 쿠폰 계산: bookId={}, couponId={}",request.getBookId(), request.getUserCouponId());
 
-        userCouponService.calculateSingleCoupon(request);
+        SingleCouponApplyResponse response = userCouponService.calculateSingleCoupon(request);
 
-        //작성하셈
-
-        return null;
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "할인 금액 미리보기", description = "이 쿠폰을 썼을 때 얼마가 할인되는지 계산합니다.")
