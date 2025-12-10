@@ -1,5 +1,7 @@
 package com.nhnacademy.coupon.domain.coupon.service;
 
+import com.nhnacademy.coupon.domain.coupon.dto.request.usage.BatchCouponUseRequest;
+import com.nhnacademy.coupon.domain.coupon.dto.request.usage.CouponCancelRequest;
 import com.nhnacademy.coupon.domain.coupon.dto.request.usage.SingleCouponApplyRequest;
 import com.nhnacademy.coupon.domain.coupon.dto.response.usage.CouponApplyResponse;
 import com.nhnacademy.coupon.domain.coupon.dto.response.usage.SingleCouponApplyResponse;
@@ -27,5 +29,10 @@ public interface UserCouponService {
     // 쿠폰 할인 계산
     BigDecimal calculateDiscount(CouponPolicy couponPolicy, BigDecimal orderAmount);
 
-    SingleCouponApplyResponse calculateSingleCoupon(@Valid SingleCouponApplyRequest request);
+    SingleCouponApplyResponse calculateSingleCoupon(Long userId, @Valid SingleCouponApplyRequest request);
+
+    void useCoupons(Long userId, @Valid BatchCouponUseRequest request);
+
+    void cancelCouponUsage(Long userId, @Valid CouponCancelRequest request);
+
 }

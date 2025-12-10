@@ -1,5 +1,7 @@
 package com.nhnacademy.coupon.domain.coupon.service.impl;
 
+import com.nhnacademy.coupon.domain.coupon.dto.request.usage.BatchCouponUseRequest;
+import com.nhnacademy.coupon.domain.coupon.dto.request.usage.CouponCancelRequest;
 import com.nhnacademy.coupon.domain.coupon.dto.request.usage.SingleCouponApplyRequest;
 import com.nhnacademy.coupon.domain.coupon.dto.response.book.BookCategoryResponse;
 import com.nhnacademy.coupon.domain.coupon.dto.response.usage.CouponApplyResponse;
@@ -176,17 +178,16 @@ public class UserCouponServiceImpl implements UserCouponService {
      * 실제 사용하지 않고, 팔인 금액만 계산
      */
     @Override
-    public SingleCouponApplyResponse calculateSingleCoupon(SingleCouponApplyRequest request) {
+    public SingleCouponApplyResponse calculateSingleCoupon(Long userId, SingleCouponApplyRequest request) {
         try{
             // 1. 쿠폰 조회
-            UserCoupon userCoupon = userCouponRepository
-                    .findById(request.getUserCouponId())
+            UserCoupon userCoupon = userCouponRepository.findById(request.getUserCouponId())
                     .orElseThrow(() -> new IllegalArgumentException("쿠폰을 찾을 수 없습니다."));
 
             CouponPolicy policy = userCoupon.getCouponPolicy();
 
             // 2. 가본 검증
-            validateCouponOwnership(userCoupon, request.getUserId());
+            validateCouponOwnership(userCoupon, userId);
             validateCouponStatus(userCoupon);
 
             // 3. 도서 총 금액 계산
@@ -235,6 +236,60 @@ public class UserCouponServiceImpl implements UserCouponService {
                     .applicable(false)
                     .message(e.getMessage())
                     .build();
+        }
+    }
+
+    @Override
+    @Transactional
+    public void useCoupons(Long userId, BatchCouponUseRequest request) {
+        List<Long> couponIds = request.getUserCouponIds();
+
+
+        // 1. 쿠폰 ID 리스트로 한 번에 조회
+        List<UserCoupon> coupons = userCouponRepository.findAllById(couponIds);
+
+        // 2. 요청한 개수와 조회된 개수가 같은지 확인 (없는 쿠폰 ID가 섞여잇을 경우 대비)
+        if(coupons.size() != couponIds.size()){
+            throw new IllegalArgumentException("존재하지 않는 쿠폰이 포함되어 있습니다.");
+        }
+
+        // 3. 순회하면서 검증 및 사용 처리
+        for (UserCoupon coupon : coupons) {
+            // 소유자 검증
+            if(!coupon.getUserId().equals(userId)){
+                throw new IllegalArgumentException("본인의 쿠폰만 사용할 수 있습니다. (ID: " + coupon.getUserCouponId() + ")");
+            }
+
+            // 사용 처리 (Entity의 use 메서드 재사용)
+            coupon.use();
+        }
+    }
+
+    @Override
+    public void cancelCouponUsage(Long userId, CouponCancelRequest request) {
+        List<Long> couponIds = request.getUserCouponIds();
+
+        // 1. 쿠폰 조회
+        List<UserCoupon> coupons = userCouponRepository.findAllById(couponIds);
+
+        // 2. 개수 검증
+        if(coupons.size() != couponIds.size()){
+            throw new IllegalArgumentException("존재하지 않는 쿠폰이 포함되어 있습니다.");
+        }
+
+        for (UserCoupon coupon : coupons) {
+            // 3. 소유자 검증
+            if(!coupon.getUserId().equals(userId)){
+                throw new IllegalArgumentException("본인의 쿠폰만 취소할 수 있습니다.");
+            }
+            // 4. 취소(복구) 처리
+            try{
+                coupon.cancel();
+                log.info("쿠폰 사용 취소 완료: couponId={}, orderId={}", coupon.getUserCouponId(), request.getOrderId());
+            } catch (IllegalStateException e){
+                log.warn("쿠폰 복구 실패 (만료됨): couponId={}", coupon.getUserCouponId());
+                throw e;
+            }
         }
     }
 
