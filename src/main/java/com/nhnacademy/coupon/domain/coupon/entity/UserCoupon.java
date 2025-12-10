@@ -94,7 +94,7 @@ public class UserCoupon {
             );
         }
 
-        this.status = CouponStatus.CANCELED;
+        this.status = CouponStatus.ISSUED;
         this.usedAt = null;  // 사용 시간 초기화
     }
 
