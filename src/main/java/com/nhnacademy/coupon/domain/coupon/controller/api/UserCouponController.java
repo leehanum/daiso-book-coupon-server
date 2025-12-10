@@ -1,17 +1,19 @@
 package com.nhnacademy.coupon.domain.coupon.controller.api;
 
-import com.nhnacademy.coupon.domain.coupon.dto.request.usage.CouponUseRequest;
-import com.nhnacademy.coupon.domain.coupon.dto.response.usage.CouponApplyResponse;
-import com.nhnacademy.coupon.domain.coupon.dto.response.usage.CouponUseResponse;
+import com.nhnacademy.coupon.domain.coupon.dto.request.usage.BatchCouponUseRequest;
+import com.nhnacademy.coupon.domain.coupon.dto.request.usage.CouponCancelRequest;
+import com.nhnacademy.coupon.domain.coupon.dto.request.usage.SingleCouponApplyRequest;
+import com.nhnacademy.coupon.domain.coupon.dto.response.usage.CouponCancelResponse;
+import com.nhnacademy.coupon.domain.coupon.dto.response.usage.SingleCouponApplyResponse;
 import com.nhnacademy.coupon.domain.coupon.dto.response.user.UserCouponResponse;
 import com.nhnacademy.coupon.domain.coupon.service.UserCouponService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Slf4j
@@ -42,24 +44,43 @@ public class UserCouponController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "쿠폰 사용 처리")
-    @PostMapping("/{userCouponId}/use")
-    public CouponUseResponse useCoupon(
-            @PathVariable Long userCouponId, @RequestBody CouponUseRequest request){
+    @Operation(summary = "단일 도서에 쿠폰 적용 계산",description = "특정 도서에 쿠폰을 적용했을 때 할인 금액을 실시간으로 계산합니다. 실제 사용하지는 않습니다.")
+    @PostMapping("/calculate")
+    public ResponseEntity<SingleCouponApplyResponse> calculateSingleCoupon(
+            @RequestHeader("X-User-Id") Long userId,
+            @Valid @RequestBody SingleCouponApplyRequest request){
 
-        return null;
-    }
+        log.info("단일 쿠폰 계산 요청: userId={}, bookId={}, couponId={}",
+                userId, request.getBookId(), request.getUserCouponId());
 
-    @Operation(summary = "할인 금액 미리보기", description = "이 쿠폰을 썼을 때 얼마가 할인되는지 계산합니다.")
-    @GetMapping("/{userCouponId}/calculation")
-    public ResponseEntity<CouponApplyResponse> calculateDiscount(
-            @PathVariable Long userCouponId,
-            @RequestParam BigDecimal price,
-
-            @RequestParam List<Long> targetIds) {
-
-        CouponApplyResponse response = userCouponService.applyCoupon(userCouponId, price,targetIds);
+        SingleCouponApplyResponse response = userCouponService.calculateSingleCoupon(userId, request);
         return ResponseEntity.ok(response);
-
     }
+
+    @Operation(summary = "쿠폰 일관 사용 처리", description = "주문 완료 시 여러개의 쿠폰을 사용 처리합니다.")
+    @PostMapping("/use-batch")
+    public ResponseEntity<Void> useCouponsBatch(
+            @RequestHeader("X-User-Id") Long userId,
+            @RequestBody @Valid BatchCouponUseRequest request){
+
+        log.info("쿠폰 일괄 사용 요청: userId={}, orderId={}, couponIds={}",
+                userId, request.getOrderId(), request.getUserCouponIds());
+
+        userCouponService.useCoupons(userId, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "쿠폰 사용 취소", description = "주문취소를 처리합니다.")
+    @PostMapping("/use-cancel")
+    public ResponseEntity<Void> cancelCoupons(
+            @RequestHeader("X-User-ID") Long userId,
+            @RequestBody @Valid CouponCancelRequest request){
+
+        log.info("쿠폰 사용 취소 요청: userId={}, orderId={}", userId, request.getOrderId());
+
+        userCouponService.cancelCouponUsage(userId, request);
+
+        return ResponseEntity.ok().build();
+    }
+
 }
