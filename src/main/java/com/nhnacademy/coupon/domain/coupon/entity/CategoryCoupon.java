@@ -18,7 +18,7 @@
 //
 //    @Column(name = "book_category_id")
 //    private Long bookCategoryId;
-//
+//3
 //    @ManyToOne
 //    @JoinColumn(name = "coupon_policy_id")
 //    private CouponPolicy couponPolicy;
