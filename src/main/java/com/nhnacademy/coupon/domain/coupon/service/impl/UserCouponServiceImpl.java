@@ -2,6 +2,7 @@ package com.nhnacademy.coupon.domain.coupon.service.impl;
 
 import com.nhnacademy.coupon.domain.coupon.dto.request.usage.BatchCouponUseRequest;
 import com.nhnacademy.coupon.domain.coupon.dto.request.usage.CouponCancelRequest;
+import com.nhnacademy.coupon.domain.coupon.dto.request.usage.CouponUseItemRequest;
 import com.nhnacademy.coupon.domain.coupon.dto.request.usage.SingleCouponApplyRequest;
 import com.nhnacademy.coupon.domain.coupon.dto.response.book.BookCategoryResponse;
 import com.nhnacademy.coupon.domain.coupon.dto.response.categoryCoupon.CategorySimpleResponse;
@@ -13,6 +14,7 @@ import com.nhnacademy.coupon.domain.coupon.entity.CouponPolicy;
 import com.nhnacademy.coupon.domain.coupon.entity.UserCoupon;
 import com.nhnacademy.coupon.domain.coupon.exception.CouponPolicyNotFoundException;
 import com.nhnacademy.coupon.domain.coupon.exception.InvalidCouponException;
+import com.nhnacademy.coupon.domain.coupon.repository.CouponBookRepository;
 import com.nhnacademy.coupon.domain.coupon.repository.CouponCategoryRepository;
 import com.nhnacademy.coupon.domain.coupon.repository.CouponPolicyRepository;
 import com.nhnacademy.coupon.domain.coupon.repository.UserCouponRepository;
@@ -22,6 +24,7 @@ import com.nhnacademy.coupon.domain.coupon.type.CouponStatus;
 import com.nhnacademy.coupon.domain.coupon.type.CouponType;
 import com.nhnacademy.coupon.domain.coupon.type.DiscountWay;
 import com.nhnacademy.coupon.global.client.BookServiceClient;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -42,6 +45,7 @@ public class UserCouponServiceImpl implements UserCouponService {
     private final BookServiceClient bookServiceClient;
     private final CouponPolicyRepository couponPolicyRepository;
     private final CouponCategoryRepository couponCategoryRepository;
+    private final CouponBookRepository couponBookRepository;
 
     @Transactional
     public CouponApplyResponse applyCoupon(Long userCouponId, BigDecimal orderAmount, List<Long> productTargetIds){
@@ -125,10 +129,10 @@ public class UserCouponServiceImpl implements UserCouponService {
                     .anyMatch(cc -> categoryIds.contains(cc.getCategoryId()));
         }
 
-        // 4. 도서 쿠폰(BOOKS)은 나중에 BookCoupon 붙이면서 구현
+        // 4. 도서 쿠폰(BOOKS): 쿠폰 정책(policyId)가 bookId와 매핑되어 있으면 true
         if (type == CouponType.BOOKS) {
-            // TODO: BookCoupon 매핑 보고 bookId 체크
-            return false;
+            return couponBookRepository.
+                    existsByCouponPolicy_CouponPolicyIdAndBookId(policy.getCouponPolicyId(),bookId);
         }
 
         return false;
@@ -238,26 +242,62 @@ public class UserCouponServiceImpl implements UserCouponService {
     @Override
     @Transactional
     public void useCoupons(Long userId, BatchCouponUseRequest request) {
-        List<Long> couponIds = request.getUserCouponIds();
+
+        Set<Long> distinctCouponIds = request.items().stream()
+                .map(CouponUseItemRequest::userCouponId)
+                .collect(Collectors.toSet());
+
+        if(distinctCouponIds.size() != request.items().size()){
+            throw new IllegalArgumentException("한 주문에서 동일 쿠폰을 여러 도서에 중복 적용할 수 없습니다.");
+        }
+
+        // 1) 쿠폰을 일괄 조회
+        List<Long> couponIds = request.items().stream()
+                .map(CouponUseItemRequest::userCouponId)
+                .toList();
 
 
-        // 1. 쿠폰 ID 리스트로 한 번에 조회
         List<UserCoupon> coupons = userCouponRepository.findAllById(couponIds);
 
-        // 2. 요청한 개수와 조회된 개수가 같은지 확인 (없는 쿠폰 ID가 섞여잇을 경우 대비)
-        if(coupons.size() != couponIds.size()){
+        if (coupons.size() != couponIds.size()) {
             throw new IllegalArgumentException("존재하지 않는 쿠폰이 포함되어 있습니다.");
         }
 
-        // 3. 순회하면서 검증 및 사용 처리
-        for (UserCoupon coupon : coupons) {
-            // 소유자 검증
-            if(!coupon.getUserId().equals(userId)){
+        Map<Long, UserCoupon> couponMap = coupons.stream()
+                .collect(Collectors.toMap(UserCoupon::getUserCouponId, c -> c));
+
+        LocalDateTime now = LocalDateTime.now();
+
+        // 2) 도서별로 검증 후 사용처리
+        for (CouponUseItemRequest item : request.items()) {
+            UserCoupon coupon = couponMap.get(item.userCouponId());
+
+            // (1) 소유자
+            if (!coupon.getUserId().equals(userId)) {
                 throw new IllegalArgumentException("본인의 쿠폰만 사용할 수 있습니다. (ID: " + coupon.getUserCouponId() + ")");
             }
 
-            // 사용 처리 (Entity의 use 메서드 재사용)
+            // (2) 상태(ISSUED만 사용 가능) - 지금 엔티티에 맞춰 체크
+            if (coupon.getStatus() != CouponStatus.ISSUED) {
+                throw new IllegalArgumentException("사용할 수 없는 쿠폰입니다. (상태: " + coupon.getStatus() + ")");
+            }
+
+            // (3) 만료 체크 (엔티티에 isAvailable()이 만료 포함이면 그걸로 대체 가능)
+            if (coupon.getExpiryAt() != null && !coupon.getExpiryAt().isAfter(now)) {
+                throw new IllegalArgumentException("만료된 쿠폰입니다. (couponId: " + coupon.getUserCouponId() + ")");
+            }
+
+            // (4) “이 도서에 적용 가능한 쿠폰인지” 최종 검증
+            BookCategoryResponse bookInfo = bookServiceClient.getBookCategory(item.bookId());
+            if (!isApplicableForBook(coupon, item.bookId(), bookInfo)) {
+                throw new IllegalArgumentException(
+                        "해당 도서에 적용할 수 없는 쿠폰입니다. (bookId=" + item.bookId() + ", couponId=" + coupon.getUserCouponId() + ")"
+                );
+            }
+
             coupon.use();
+
+            // TODO 추천(다음 단계): coupon.use(request.orderId()) 로 orderId 저장해서 취소 검증까지 완벽하게
         }
     }
 
