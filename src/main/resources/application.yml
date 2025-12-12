@@ -31,6 +31,8 @@ rabbitmq:
     key: team3.coupon.welcome
   queue:
     name: team3.coupon.welcome.queue  # <-- 메시지가 쌓일 실제 우편함 이름
+    coupon: team3.user.deducted.coupon.queue.dev
+
 eureka:
   instance:
     prefer-ip-address: true

@@ -61,4 +61,35 @@ public class RabbitMqConfig {
         return rabbitTemplate;
     }
 
+    // ----- saga 설정 ------
+
+    private static final String USER_EXCHANGE = "team3.user.exchange";
+    @Value("${rabbitmq.queue.coupon}")
+    private String COUPON_QUEUE;
+    private static final String ROUTING_KEY_DEDUCTED = "point.deducted";
+
+    private static final String COUPON_EXCHANGE = "team3.coupon.exchange";
+
+    @Bean
+    public TopicExchange userExchange() {
+        return new TopicExchange(USER_EXCHANGE);
+    }
+
+    @Bean
+    public Queue couponQueue() {
+        return new Queue(COUPON_QUEUE, true);
+    }
+
+    @Bean
+    public Binding bindingUserDeducted(Queue couponQueue, TopicExchange userExchange) {
+        return BindingBuilder.bind(couponQueue)
+                .to(userExchange)
+                .with(ROUTING_KEY_DEDUCTED);
+    }
+
+    @Bean
+    public TopicExchange couponExchange() {
+        return new TopicExchange(COUPON_EXCHANGE);
+    }
+
 }
