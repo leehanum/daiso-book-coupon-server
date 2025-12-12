@@ -15,4 +15,8 @@ public interface CouponBookRepository extends JpaRepository<CouponBook, Long> {
     // 필요하면 여러 도서 한 번에 조회용
     List<CouponBook> findByBookIdIn(List<Long> bookIds);
 
+    // 이 쿠폰정책(policyId)가 bookId와 매핑이 되어있는지 확인하는 메서드
+    boolean existsByCouponPolicy_CouponPolicyIdAndBookId(Long couponPolicyId, Long bookId);
+
+
 }

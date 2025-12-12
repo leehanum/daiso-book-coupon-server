@@ -9,6 +9,7 @@ import com.nhnacademy.coupon.domain.coupon.service.UserCouponService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,13 +20,11 @@ import java.util.List;
 @Tag(name = "User Coupon", description = "사용자 쿠폰 관리 (발급 및 사용)")
 @RestController
 @RequestMapping("/api/coupons")
+@RequiredArgsConstructor
 public class UserCouponController {
 
     private final UserCouponService userCouponService;
 
-    public UserCouponController(UserCouponService userCouponService) {
-        this.userCouponService = userCouponService;
-    }
 
     @Operation(summary = "내 쿠폰 목록 조회")
     @GetMapping("/users")
@@ -62,8 +61,8 @@ public class UserCouponController {
             @RequestHeader("X-User-Id") Long userId,
             @RequestBody @Valid BatchCouponUseRequest request){
 
-        log.info("쿠폰 일괄 사용 요청: userId={}, orderId={}, couponIds={}",
-                userId, request.getOrderId(), request.getUserCouponIds());
+        log.info("쿠폰 일괄 사용 요청: userId={}, orderId={}, items={}",
+                userId, request.orderId(), request.items());
 
         userCouponService.useCoupons(userId, request);
         return ResponseEntity.ok().build();
@@ -72,7 +71,7 @@ public class UserCouponController {
     @Operation(summary = "쿠폰 사용 취소", description = "주문취소를 처리합니다.")
     @PostMapping("/use-cancel")
     public ResponseEntity<Void> cancelCoupons(
-            @RequestHeader("X-User-ID") Long userId,
+            @RequestHeader("X-User-Id") Long userId,
             @RequestBody @Valid CouponCancelRequest request){
 
         log.info("쿠폰 사용 취소 요청: userId={}, orderId={}", userId, request.getOrderId());

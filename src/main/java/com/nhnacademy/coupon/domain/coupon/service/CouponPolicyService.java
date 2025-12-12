@@ -5,7 +5,6 @@ import com.nhnacademy.coupon.domain.coupon.dto.request.policy.CouponPolicyCreate
 import com.nhnacademy.coupon.domain.coupon.dto.request.policy.CouponPolicyUpdateRequest;
 import com.nhnacademy.coupon.domain.coupon.dto.request.issue.UserCouponIssueRequest;
 import com.nhnacademy.coupon.domain.coupon.dto.response.categoryCoupon.CategoryCouponResponse;
-import com.nhnacademy.coupon.domain.coupon.dto.response.policy.AvailableCouponResponse;
 import com.nhnacademy.coupon.domain.coupon.dto.response.policy.CouponPolicyResponse;
 import com.nhnacademy.coupon.domain.coupon.dto.response.user.UserCouponResponse;
 import java.util.List;
