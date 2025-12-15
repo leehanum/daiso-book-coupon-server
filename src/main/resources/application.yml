@@ -24,7 +24,6 @@ spring:
     port: ${SPRING_RABBITMQ_PORT}
     username: ${SPRING_RABBITMQ_USERNAME}
     password: ${SPRING_RABBITMQ_PASSWORD}
-
     listener:
       simple:
         acknowledge-mode: manual # 수동 ack
