@@ -31,7 +31,18 @@ public class CouponMessageListener {
             log.info("[RabbitMQ Consumer] 웰컴 쿠폰 발급 완료! userCreatedId={}", message.userCreatedId());
         } catch (Exception e){
             log.error("[RabbitMQ Consumer] 쿠폰 발급 실패: userCreatedId={}, error={}", message.userCreatedId(), e.getMessage());
+            throw e; // 이 줄이 DLQ로 보내는 트리거
         }
-        log.info("===========================");
     }
+//    @RabbitListener(queues = "${rabbitmq.queue.name}")
+//    public void handleWelcomeCouponIssue(CouponIssueMessage message){
+//        log.info("[Consumer] received userId={}", message.userCreatedId());
+//
+//        // 테스트: 특정 userId면 일부러 실패
+//        if (message.userCreatedId() == 999L) {
+//            throw new RuntimeException("TEST FAIL: forced error");
+//        }
+//
+//        couponPolicyService.issueWelcomeCoupon(message.userCreatedId());
+//    }
 }
