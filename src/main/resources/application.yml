@@ -24,6 +24,16 @@ spring:
     port: ${SPRING_RABBITMQ_PORT}
     username: ${SPRING_RABBITMQ_USERNAME}
     password: ${SPRING_RABBITMQ_PASSWORD}
+    listener:
+      simple:
+        default-requeue-rejected: false
+        acknowledge-mode: auto
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 1000ms
+          multiplier: 2.0
+
 rabbitmq:
   exchange:
     name: team3.coupon.exchange
@@ -31,7 +41,7 @@ rabbitmq:
     key: team3.coupon.welcome
   queue:
     name: team3.coupon.welcome.queue  # <-- 메시지가 쌓일 실제 우편함 이름
-    coupon: team3.user.deducted.coupon.queue.dev
+    coupon: team3.user.deducted.coupon.queue
 
 eureka:
   instance:
