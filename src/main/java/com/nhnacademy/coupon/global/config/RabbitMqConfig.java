@@ -121,80 +121,19 @@ public class RabbitMqConfig {
         return rabbitTemplate;
     }
 
-    // ----- saga 설정 ------
-    // ====== (SAGA) user exchange → coupon queue binding ======
-    private static final String USER_EXCHANGE = "team3.user.exchange";
-    private static final String ROUTING_KEY_DEDUCTED = "point.deducted";
-
-    /**
-     * ⚠️ 여기 절대 welcome 큐 이름 쓰면 안 됨!
-     * yml에 rabbitmq.queue.coupon: team3.coupon.saga.queue 이런 식으로 별도 큐를 넣어주세요.
-     */
-    @Value("${rabbitmq.queue.coupon}")
-    private String couponSagaQueueName;
-
-    @Bean(name = "userExchange")
-    public TopicExchange userExchange() {
-        return new TopicExchange(USER_EXCHANGE);
+    @Bean
+    public DirectExchange welcomeDlx() {
+        return new DirectExchange(dlxName);
     }
 
-    @Bean(name = "couponSagaQueue")
-    public Queue couponSagaQueue() {
-        return QueueBuilder.durable(couponSagaQueueName).build();
+    @Bean(name = "welcomeDlq")
+    public Queue welcomeDlq() {
+        return QueueBuilder.durable(dlqName).build();
     }
 
     @Bean
-    public Binding bindUserDeducted(
-            @Qualifier("couponSagaQueue") Queue q,
-            @Qualifier("userExchange") TopicExchange ex
-    ) {
-        return BindingBuilder.bind(q).to(ex).with(ROUTING_KEY_DEDUCTED);
+    public Binding bindWelcomeDlq(Queue welcomeDlq, DirectExchange welcomeDlx) {
+        return BindingBuilder.bind(welcomeDlq).to(welcomeDlx).with(dlqRoutingKey);
     }
-
-//    private static final String USER_EXCHANGE = "team3.user.exchange";
-////    @Value("${rabbitmq.queue.coupon}")
-//    @Value("${rabbitmq.queue.name}")
-//    private String COUPON_QUEUE;
-//    private static final String ROUTING_KEY_DEDUCTED = "point.deducted";
-//
-//    private static final String COUPON_EXCHANGE = "team3.coupon.exchange";
-//
-//    @Bean
-//    public TopicExchange userExchange() {
-//        return new TopicExchange(USER_EXCHANGE);
-//    }
-//
-//    @Bean
-//    public Queue couponQueue() {
-//        return new Queue(COUPON_QUEUE, true);
-//    }
-//
-//    @Bean
-//    public Binding bindingUserDeducted(Queue couponQueue, TopicExchange userExchange) {
-//        return BindingBuilder.bind(couponQueue)
-//                .to(userExchange)
-//                .with(ROUTING_KEY_DEDUCTED);
-//    }
-//
-//    @Bean
-//    public TopicExchange couponExchange() {
-//        return new TopicExchange(COUPON_EXCHANGE);
-//    }
-//
-//
-//    @Bean
-//    public DirectExchange welcomeDlx() {
-//        return new DirectExchange(dlxName);
-//    }
-//
-//    @Bean(name = "welcomeDlq")
-//    public Queue welcomeDlq() {
-//        return QueueBuilder.durable(dlqName).build();
-//    }
-//
-//    @Bean
-//    public Binding bindWelcomeDlq(Queue welcomeDlq, DirectExchange welcomeDlx) {
-//        return BindingBuilder.bind(welcomeDlq).to(welcomeDlx).with(dlqRoutingKey);
-//    }
 
 }
