@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
@@ -18,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class CouponEventPublisher {
 
+    @Qualifier("outboxRabbitTemplate")
     private final AmqpTemplate rabbitTemplate;
 
     private static final String COUPON_EXCHANGE = "team3.saga.coupon.exchange";
