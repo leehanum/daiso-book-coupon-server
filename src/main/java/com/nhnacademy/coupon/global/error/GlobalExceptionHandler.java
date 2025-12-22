@@ -1,6 +1,7 @@
 package com.nhnacademy.coupon.global.error;
 
 import com.nhnacademy.coupon.domain.coupon.exception.CouponPolicyNotFoundException;
+import com.nhnacademy.coupon.domain.coupon.exception.DuplicateCouponException;
 import com.nhnacademy.coupon.domain.coupon.exception.InvalidCouponException;
 import com.nhnacademy.coupon.domain.coupon.exception.UserCouponNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,6 +31,11 @@ public class GlobalExceptionHandler {
             RuntimeException ex,
             HttpServletRequest request) {
 
+        log.warn("Resource not found - path: {}, exception: {}, message: {}",
+                request.getRequestURI(),
+                ex.getClass().getSimpleName(),
+                ex.getMessage());
+
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.NOT_FOUND.value(),
@@ -51,6 +57,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleInvalidCoupon(
             InvalidCouponException ex,
             HttpServletRequest request) {
+
+        log.warn("Invalid coupon operation - path: {}, message: {}",
+                request.getRequestURI(),
+                ex.getMessage());
+
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
@@ -115,6 +126,27 @@ public class GlobalExceptionHandler {
                 null
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(DuplicateCouponException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateCoupon(
+            DuplicateCouponException ex,
+            HttpServletRequest request) {
+
+        log.warn("Duplicate coupon issuance - path: {}, message: {}",
+                request.getRequestURI(),
+                ex.getMessage());
+
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                "Conflict",
+                ex.getMessage(),
+                request.getRequestURI(),
+                null
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
 
