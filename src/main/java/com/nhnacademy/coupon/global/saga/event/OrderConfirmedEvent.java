@@ -1,10 +1,9 @@
-package com.nhnacademy.coupon.global.saga;
+package com.nhnacademy.coupon.global.saga.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +13,7 @@ import java.util.Map;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderConfirmedEvent {
+public class OrderConfirmedEvent implements SagaEvent {
 
     private Long orderId;
     private Long userId;

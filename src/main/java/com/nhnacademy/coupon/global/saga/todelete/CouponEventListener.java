@@ -1,4 +1,4 @@
-package com.nhnacademy.coupon.global.saga;
+package com.nhnacademy.coupon.global.saga.todelete;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.coupon.domain.coupon.entity.saga.CouponDeduplicationLog;
@@ -7,6 +7,9 @@ import com.nhnacademy.coupon.domain.coupon.exception.CouponUpdateFailedException
 import com.nhnacademy.coupon.domain.coupon.exception.FailedSerializationException;
 import com.nhnacademy.coupon.domain.coupon.repository.CouponDeduplicationRepository;
 import com.nhnacademy.coupon.domain.coupon.repository.CouponOutboxRepository;
+import com.nhnacademy.coupon.global.saga.CouponOutboxCommittedEvent;
+import com.nhnacademy.coupon.global.saga.event.OrderCompensateEvent;
+import com.nhnacademy.coupon.global.saga.event.OrderConfirmedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
@@ -70,6 +73,16 @@ public class CouponEventListener {
         } catch(CouponUpdateFailedException e) { // 커스텀 예외 처리 꼭 하기
             log.error("[Coupon API] ===== 쿠폰 사용 내역 업데이트 실패로 인한 보상 트랜잭션 시작 =====");
             log.error("[Coupon API] Order ID : {}", event.getOrderId());
+
+            OrderCompensateEvent orderCompensateEvent = new OrderCompensateEvent(event, "COUPON_FAILED");
+
+//            try {
+//
+//            }
+
+
+
+
 
             throw e; // 트랜잭션이 걸려있으므로 예외를 던지면 DB 트랜잭션 롤백
         }
