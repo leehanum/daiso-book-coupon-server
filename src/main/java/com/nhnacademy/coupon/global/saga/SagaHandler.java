@@ -22,10 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class SagaHandler {
 
-    private final ObjectMapper objectMapper;
-    private final CouponOutboxRepository outboxRepository;
-    private final ApplicationEventPublisher publisher;
     private final SagaTestService testService;
+    private final SagaReplyService replyService;
 
     @Transactional
     public void handleEvent(OrderConfirmedEvent event) {
@@ -37,7 +35,7 @@ public class SagaHandler {
             // TODO 쿠폰 사용 내역 업데이트 로직
             // 서비스 주입받아서 하시면 됨
 
-            testService.process(); // 일부러 재고 부족 터트리기
+//            testService.process(); // 일부러 재고 부족 터트리기
 
             // 로직 중에 재고 부족하면 해당 커스텀 예외 던지시면 됩니다.
             // 더 좋은 방법 있으면 추천 좀
@@ -49,11 +47,13 @@ public class SagaHandler {
             // ---> 비즈니스상 실패를 의미함 (쿠폰 유효기간 지났다던가)
             isSuccess = false;
             reason = "UPDATE_FAILED";
+            throw e;
         } catch(Exception e) {
             log.error("[Coupon API] 예상치 못한 시스템 에러 발생 - Order : {}", event.getOrderId(), e);
             isSuccess = false;
             reason = "SYSTEM_ERROR";
             // 이렇게 예외 범위를 넓게 해놔야 무슨 에러가 터져도 finally 문이 실행됨
+            throw e;
         }
         finally {
             // 성공했든 실패했든 답장은 해야함
@@ -65,7 +65,7 @@ public class SagaHandler {
             );
 
             // 응답 메시지 전송
-            this.send(event, reply, SagaTopic.REPLY_RK);
+            replyService.send(event, reply, SagaTopic.REPLY_RK);
         }
     }
 
@@ -96,29 +96,7 @@ public class SagaHandler {
             );
 
             // 응답 메시지 전송
-            this.send(event, reply, SagaTopic.REPLY_COMPENSATION_RK);
-        }
-    }
-
-    public void send(SagaEvent event, SagaReply reply, String key) {
-        try {
-            CouponOutbox outbox = new CouponOutbox(
-                    event.getOrderId(),
-                    "COUPON",
-                    SagaTopic.ORDER_EXCHANGE,
-                    key,
-                    objectMapper.writeValueAsString(reply)
-            );
-
-            outboxRepository.save(outbox);
-
-            log.info("[Saga Outbox] {} 토픽으로 메시지 저장 완료 (OrderID: {})", SagaTopic.REPLY_RK, event.getOrderId());
-            publisher.publishEvent(new CouponOutboxCommittedEvent(this, outbox.getId()));
-
-
-        } catch (JsonProcessingException e) {
-            log.warn("객체 직렬화 실패");
-            throw new FailedSerializationException("객체 직렬화 실패");
+            replyService.send(event, reply, SagaTopic.REPLY_COMPENSATION_RK);
         }
     }
 }
