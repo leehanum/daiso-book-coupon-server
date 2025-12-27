@@ -382,4 +382,98 @@ class UserCouponServiceImplTest {
 
         verify(coupon).use(orderId);
     }
+
+    // =========================
+    // downloadCoupon() 테스트
+    // =========================
+
+    @Test
+    @DisplayName("downloadCoupon - 정책 없으면 예외")
+    void downloadCoupon_policyNotFound() {
+        when(couponPolicyRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userCouponService.downloadCoupon(1L, 1L))
+                .isInstanceOf(CouponPolicyNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("downloadCoupon - 정상 다운로드")
+    void downloadCoupon_success() {
+        CouponPolicy policy = mock(CouponPolicy.class);
+        when(policy.getCouponPolicyStatus()).thenReturn(CouponPolicyStatus.ACTIVE);
+        when(policy.getValidStartDate()).thenReturn(null);
+        when(policy.getValidEndDate()).thenReturn(null);
+        when(policy.getValidDays()).thenReturn(30);
+        when(policy.getCouponPolicyId()).thenReturn(1L);
+
+        when(couponPolicyRepository.findById(1L)).thenReturn(Optional.of(policy));
+        when(userCouponRepository.existsByUserIdAndCouponPolicy_CouponPolicyId(1L, 1L))
+                .thenReturn(false);
+
+        UserCoupon saved = mock(UserCoupon.class);
+        when(saved.getCouponPolicy()).thenReturn(policy);
+        when(userCouponRepository.save(any())).thenReturn(saved);
+
+        assertThatCode(() -> userCouponService.downloadCoupon(1L, 1L))
+                .doesNotThrowAnyException();
+
+        verify(policy).decreaseQuantity();
+    }
+
+    // =========================
+    // expireCoupons() 테스트
+    // =========================
+
+    @Test
+    @DisplayName("expireCoupons - 만료 처리")
+    void expireCoupons_success() {
+        when(userCouponRepository.bulkExpireCoupons(any())).thenReturn(5);
+
+        assertThatCode(() -> userCouponService.expireCoupons())
+                .doesNotThrowAnyException();
+
+        verify(userCouponRepository).bulkExpireCoupons(any());
+    }
+
+// =========================
+// getAvailableCoupons() 테스트
+// =========================
+
+    @Test
+    @DisplayName("getAvailableCoupons - bookId null이면 전체 쿠폰 반환")
+    void getAvailableCoupons_withoutBookId_returnsAll() {
+        Long userId = 1L;
+        LocalDateTime now = LocalDateTime.now();
+
+        CouponPolicy policy = mock(CouponPolicy.class);
+        when(policy.getCouponPolicyId()).thenReturn(1L);
+        when(policy.getCouponPolicyName()).thenReturn("테스트 쿠폰");
+
+        UserCoupon coupon = mock(UserCoupon.class);
+        when(coupon.getUserCouponId()).thenReturn(1L);
+        when(coupon.getExpiryAt()).thenReturn(now.plusDays(10));
+        when(coupon.getCouponPolicy()).thenReturn(policy);
+
+        when(userCouponRepository.findByUserIdAndStatus(userId, CouponStatus.ISSUED))
+                .thenReturn(List.of(coupon));
+
+        var result = userCouponService.getAvailableCoupons(userId, null);
+
+        assertThat(result).hasSize(1);
+        verify(bookServiceClient, never()).getBookCategory(anyLong());
+    }
+
+    // =========================
+    // getUserCoupons() 테스트
+    // =========================
+
+    @Test
+    @DisplayName("getUserCoupons - 빈 목록이면 빈 리스트 반환")
+    void getUserCoupons_empty() {
+        when(userCouponRepository.findByUserId(1L)).thenReturn(List.of());
+
+        var result = userCouponService.getUserCoupons(1L);
+
+        assertThat(result).isEmpty();
+    }
 }
