@@ -7,6 +7,7 @@ import com.nhnacademy.coupon.domain.coupon.exception.CouponUpdateFailedException
 import com.nhnacademy.coupon.domain.coupon.service.UserCouponService;
 import com.nhnacademy.coupon.global.saga.event.OrderCompensateEvent;
 import com.nhnacademy.coupon.global.saga.event.OrderConfirmedEvent;
+import com.nhnacademy.coupon.global.saga.event.SagaEvent;
 import com.nhnacademy.coupon.global.saga.event.SagaReply;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,7 @@ public class SagaHandler {
     private final UserCouponService userCouponService;
 
     @Transactional
-    public void handleEvent(OrderConfirmedEvent event) {
+    public void handleEvent(SagaEvent event) {
 
         boolean isSuccess = true; // 성공 여부
         String reason = null; // 실패시 사유
@@ -38,22 +39,25 @@ public class SagaHandler {
              *  매개변수로 넘어온 event DTO를 까보시면 필요한 정보들이 담겨 있습니다.
              *  그거 토대로 각자 로직에 구현해주면 됨 (재고 차감, 포인트 차감, 쿠폰 사용 처리)
              *
+             *
              *  만약 쿠폰 사용 처리 중 오류가 발생한다?
              *  그럼 하단에 CouponUpdateFailedException 던지면 됩니다!
              *
              *  더 좋은 로직 있다면 추천 가능
              */
 
-            List<CouponUseRequest> coupons = event.getUsedCouponIds().stream()
-                    .map(CouponUseRequest::new)
-                    .toList();
+            if(event instanceof OrderConfirmedEvent confirmedEvent) {
+                List<CouponUseRequest> coupons = confirmedEvent.getUsedCouponIds().stream()
+                        .map(CouponUseRequest::new)
+                        .toList();
 
-            // BatchCouponUseRequest
-            BatchCouponUseRequest request = new BatchCouponUseRequest(event.getOrderId(), coupons);
+                // BatchCouponUseRequest
+                BatchCouponUseRequest request = new BatchCouponUseRequest(confirmedEvent.getOrderId(), coupons);
 
-            userCouponService.useCoupons(event.getUserId(), request);
+                userCouponService.useCoupons(confirmedEvent.getUserId(), request);
 
-            log.info("[Coupon API] 쿠폰 사용내역 업데이트 성공 - Order : {}", event.getOrderId());
+                log.info("[Coupon API] 쿠폰 사용내역 업데이트 성공 - Order : {}", confirmedEvent.getOrderId());
+            }
 
         } catch(CouponUpdateFailedException e) { // 쿠폰 사용내역 업데이트 실패
             // ---> 비즈니스상 실패를 의미함 (쿠폰 유효기간 지났다던가)
