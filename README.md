@@ -10,7 +10,7 @@ Gateway, Eureka, RabbitMQ, Batch Server와 연동되어 동작합니다.
 
 ## 기술 스택
 
-- Java 17
+- Java 21
 - Spring Boot
 - Spring Data JPA
 - Spring Batch
