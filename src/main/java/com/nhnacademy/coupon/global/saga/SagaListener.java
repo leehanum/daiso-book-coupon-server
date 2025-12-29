@@ -4,6 +4,7 @@ import com.nhnacademy.coupon.domain.coupon.entity.saga.CouponDeduplicationLog;
 import com.nhnacademy.coupon.domain.coupon.repository.CouponDeduplicationRepository;
 import com.nhnacademy.coupon.global.saga.event.OrderCompensateEvent;
 import com.nhnacademy.coupon.global.saga.event.OrderConfirmedEvent;
+import com.nhnacademy.coupon.global.saga.event.SagaEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -18,7 +19,7 @@ public class SagaListener {
     private final SagaHandler sagaHandler;
 
     @RabbitListener(queues = SagaTopic.COUPON_QUEUE)
-    public void onEvent(OrderConfirmedEvent event) {
+    public void onEvent(SagaEvent event) {
 
         // 중복 검사
         if(deduplicationRepository.existsByMessageId(String.valueOf(event.getOrderId()))) {
@@ -32,7 +33,7 @@ public class SagaListener {
         deduplicationRepository.save(new CouponDeduplicationLog(event.getOrderId().toString()));
 
         // 실제 작업은 핸들러가
-        sagaHandler. handleEvent(event);
+        sagaHandler.handleEvent(event);
     }
 
     // 보상 로직
