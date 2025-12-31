@@ -1,5 +1,6 @@
 package com.nhnacademy.coupon.global.saga.event;
 
+import com.nhnacademy.coupon.global.saga.SagaHandler;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class OrderConfirmedEvent implements SagaEvent {
 
+    private String eventId;
     private Long orderId;
     private Long userId;
     private Long outboxId;
@@ -25,4 +27,14 @@ public class OrderConfirmedEvent implements SagaEvent {
     private Long usedPoint; // 사용 포인트
     private Long savedPoint; // 적립 포인트
     private List<Long> usedCouponIds;
+
+    @Override
+    public String getEventId() {
+        return eventId;
+    }
+
+    @Override
+    public void accept(SagaHandler handler) {
+        handler.handleEvent(this);
+    }
 }
