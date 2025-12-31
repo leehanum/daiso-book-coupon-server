@@ -1,5 +1,7 @@
 package com.nhnacademy.coupon.global.saga.event;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.nhnacademy.coupon.global.saga.SagaHandler;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,27 +13,23 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderCompensateEvent implements SagaEvent {
+    @JsonProperty("eventId")
+    private String eventId;
+    private SagaEvent originalEvent; // ----> 이렇게 해야 어떤 이벤트든 담을 수 있음
+    private String failureReason; // 실패 사유
 
-    private Long orderId;
-    private Long userId;
-    private Long outboxId;
+    @Override
+    public String getEventId() {
+        return eventId;
+    }
 
-    private Map<Long, Integer> bookList;
-    private Long totalAmount;
-    private Long usedPoint; // 사용 포인트
-    private Long savedPoint; // 적립 포인트
-    private List<Long> usedCouponIds;
+    @Override
+    public Long getOrderId() {
+        return originalEvent.getOrderId();
+    }
 
-    private String failureReason; // 보상 트랜잭션 이유
-
-    public OrderCompensateEvent(OrderConfirmedEvent event, String failureReason) {
-        this.orderId = event.getOrderId();
-        this.userId = event.getUserId();
-        this.bookList = event.getBookList();
-        this.totalAmount = event.getTotalAmount();
-        this.usedPoint = event.getUsedPoint();
-        this.savedPoint = event.getSavedPoint();
-        this.usedCouponIds = event.getUsedCouponIds();
-        this.failureReason = failureReason;
+    @Override
+    public void accept(SagaHandler handler) {
+        handler.handleEvent(this);
     }
 }

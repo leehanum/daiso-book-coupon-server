@@ -19,6 +19,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -74,14 +76,7 @@ public class CouponEventListener {
             log.error("[Coupon API] ===== 쿠폰 사용 내역 업데이트 실패로 인한 보상 트랜잭션 시작 =====");
             log.error("[Coupon API] Order ID : {}", event.getOrderId());
 
-            OrderCompensateEvent orderCompensateEvent = new OrderCompensateEvent(event, "COUPON_FAILED");
-
-//            try {
-//
-//            }
-
-
-
+            OrderCompensateEvent orderCompensateEvent = new OrderCompensateEvent(UUID.randomUUID().toString(), event, "COUPON_FAILED");
 
 
             throw e; // 트랜잭션이 걸려있으므로 예외를 던지면 DB 트랜잭션 롤백
